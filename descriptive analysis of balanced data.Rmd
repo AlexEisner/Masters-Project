@@ -1,0 +1,880 @@
+---
+title: "DESCRIPTIVE ANALYSIS OF BALANCED DATA"
+author: "Alex Eisner"
+date: "23/09/2020"
+output:
+  word_document: default
+  pdf_document: default
+  html_document: default
+---
+```{r message=FALSE, echo=FALSE}
+library(ggplot2)
+library(knitr)
+library(plotly)
+
+accident <- read.csv('accident_wide_3.csv')
+library(lubridate)
+datecorrected <- ymd(accident$ACCIDENTDATE)
+accident$ACCIDENTDATE <- datecorrected
+rm(datecorrected)
+str(accident)
+```
+
+# CRASH ANALYSIS
+### Total Number of Crashes by Severity Level
+```{r echo=FALSE}
+# crate a frequency table
+crash_table <- table(accident$SEVERITY)
+
+# create a prop table for the column percentages 
+prop_crash_table <- round(prop.table(crash_table)*100,2)
+
+# combine the two tables
+combine_crash_type <- rbind(crash_table, prop_crash_table)
+
+# name the colums and rows
+colnames(combine_crash_type) = c("Fatal", "Serious Injury", "Minor Injury")
+rownames(combine_crash_type) = c("Frequency", "Percentage of Total Crashes")
+kable(combine_crash_type, align = "c", "simple")
+```
+
+### Total Number of Crashes by Accident Type
+```{r echo=FALSE}
+# crate a frequency table with row and column lables 
+accident_type_table <- table(accident$ACCIDENT_TYPE, accident$SEVERITY)
+colnames(accident_type_table) = c("Fatal", "Serious Injury", "Minor Injury")
+rownames(accident_type_table) = c("collision with a vehicle", "struck pedestrian", "struck animal", "collision with a fixed object", "collision with some other object", "vehicle overturned (no collision)", "fall from or in moving vehicle", "no collision and no object struck", "other accident")
+
+# create a prop table for the column percentages 
+prop_accident_type_table <- round(prop.table(accident_type_table, 2)*100,2)
+
+# combine the two tables 
+combine_accident_type <- cbind(accident_type_table, prop_accident_type_table)
+
+# add the column names for the proportions 
+colnames(combine_accident_type) = c("Fatal", "Serious Injury", "Minor Injury", "Percentage Fatal", "Percentage Serious Injury", "Percentage Minor Injury")
+
+# reorder the colums so that percentage comes after the frequency
+combine_accident_type <- combine_accident_type[, c(1, 4, 2, 5, 3, 6)]
+kable(combine_accident_type, align = "c", "simple")
+```
+
+### Number of Crashes by Region
+```{r echo=FALSE}
+# crate a frequency table with row and column lables 
+region_table <- table(accident$Deg.Urban.Name, accident$SEVERITY)
+  colnames(region_table) = c("Fatal", "Serious Injury", "Minor Injury")
+  rownames(region_table) = c("Large provincial cities", "Melbourne urban", "Melbourne CBD", "Small cities", "Small towns", "Towns")
+  
+# create a prop table for the column percentages 
+prop_region_table <- round(prop.table(region_table, 2)*100,2)
+
+# combine the two tables 
+combine_region_table <- cbind(region_table , prop_region_table)
+
+# add the column names for the proportions 
+colnames(combine_region_table) = c("Fatal", "Serious Injury", "Minor Injury", "Percentage Fatal", "Percentage Serious Injury", "Percentage Minor Injury")
+
+# reorder the colums so that percentage comes after the frequency
+combine_region_table <- combine_region_table[, c(1,4,2,5,3,6)]
+kable(combine_region_table, align = "c", "simple")
+```
+
+### Number of Crashes by Speed Zone
+```{r echo=FALSE}
+# crate a frequency table with row and column lables 
+speedzone_table <- table(accident$SPEED_ZONE, accident$SEVERITY)
+  colnames(speedzone_table) = c("Fatal", "Serious Injury", "Minor Injury")
+  rownames(speedzone_table) = c("30", "40", "50", "60", "70", "75", "80", "90", "100", "110", "Other", "Camping/ground off road", "Unknown")
+  
+# create a prop table for the column percentages 
+prop_speedzone_table <- round(prop.table(speedzone_table, 2)*100,2)
+
+# combine the two tables 
+combine_speedzone_table <- cbind(speedzone_table, prop_speedzone_table)
+
+# add the column names for the proportions 
+colnames(combine_speedzone_table) = c("Fatal", "Serious Injury", "Minor Injury", "Percentage Fatal", "Percentage Serious Injury", "Percentage Minor Injury")
+
+# reorder the colums so that percentage comes after the frequency
+combine_speedzone_table <- combine_speedzone_table[, c(1,4,2,5,3,6)]
+kable(combine_speedzone_table, align = "c", "simple")
+```
+
+### Number of Crashes by Road Geometry
+```{r echo=FALSE}
+# crate a frequency table with row and column lables 
+geometry_table <- table(accident$ROAD_GEOMETRY, accident$SEVERITY)
+  colnames(geometry_table) = c("Fatal", "Serious Injury", "Minor Injury")
+  rownames(geometry_table) = c("Cross intersection", "T intersection", "Y intersection", "multiple intersection", "not at intersection", "dead end", "road closure", "private property", "unknown")
+  
+# create a prop table for the column percentages 
+prop_geometry_table <- round(prop.table(geometry_table, 2)*100,2)
+
+# combine the two tables 
+combine_geometry_table <- cbind(geometry_table, prop_geometry_table)
+
+# add the column names for the proportions 
+colnames(combine_geometry_table) = c("Fatal", "Serious Injury", "Minor Injury", "Percentage Fatal", "Percentage Serious Injury", "Percentage Minor Injury")
+
+# reorder the colums so that percentage comes after the frequency
+combine_geometry_table <- combine_geometry_table[, c(1,4,2,5,3,6)]
+kable(combine_geometry_table, align = "c", "simple")
+```
+
+### Number of Vehicles Involved in a Single Crash
+```{r echo=FALSE}
+# crate a frequency table with row and column lables 
+noveh_table <- table(accident$NO_OF_VEHICLES, accident$SEVERITY)
+  colnames(noveh_table) = c("Fatal", "Serious Injury", "Minor Injury")
+  rownames(noveh_table) = c("1", "2", "3", "4", "5", "6", "7", "8", "9", "10", "11", "12", "13", "14")
+
+# create a prop table for the column percentages 
+prop_noveh_table <- round(prop.table(noveh_table, 2)*100,2)
+
+# combine the two tables 
+combine_noveh_table <- cbind(noveh_table, prop_noveh_table)
+
+# add the column names for the proportions 
+colnames(combine_noveh_table) = c("Fatal", "Serious Injury", "Minor Injury", "Percentage Fatal", "Percentage Serious Injury", "Percentage Minor Injury")
+
+# reorder the colums so that percentage comes after the frequency
+combine_noveh_table <- combine_noveh_table[, c(1,4,2,5,3,6)]
+kable(combine_noveh_table, align = "c", "simple")
+
+```
+
+### Number of Persons Involved in a Single Crash
+```{r echo=FALSE}
+
+# crate a frequency table with row and column lables 
+person_table <- table(accident$NO_PERSONS, accident$SEVERITY)
+  colnames(person_table) = c("Fatal", "Serious Injury", "Minor Injury")
+
+# create a prop table for the column percentages 
+prop_person_table <- round(prop.table(person_table, 2)*100,2)
+
+# combine the two tables 
+combine_person_table <- cbind(person_table, prop_person_table)
+
+# add the column names for the proportions 
+colnames(combine_person_table) = c("Fatal", "Serious Injury", "Minor Injury", "Percentage Fatal", "Percentage Serious Injury", "Percentage Minor Injury")
+
+# reorder the colums so that percentage comes after the frequency
+combine_person_table  <- combine_person_table [, c(1,4,2,5,3,6)]
+kable(combine_person_table, align = "c", "simple")
+```
+
+## Number of Crashes by Year
+```{r echo=FALSE}
+fatal_crashes <- subset(accident, accident$SEVERITY == 1)
+
+  serious_injury_crashes <- subset(accident, accident$SEVERITY == 2)
+
+    minor_injury <- subset(accident, accident$SEVERITY == 3)
+```
+
+
+```{r echo=FALSE, warning = FALSE, fig.width=10, fig.height=6}
+# Number of Fatal Crashes by Year
+t <- format(fatal_crashes$ACCIDENTDATE, format = "%Y")
+df_t <- as.data.frame(table(t))
+
+# code to make a graph
+ggplot(df_t, aes(x = t, y = Freq)) +
+  geom_line(group = 1 ) +
+  labs(x = "Year", y = "Count", title = "Number of Fatal Crashes 2009 to   2020")
+
+```
+
+
+
+```{r echo=FALSE, message=FALSE, warning = FALSE, fig.width=10, fig.height=6}
+# Number of Serious Injury Crashes by Year
+s <- format(serious_injury_crashes$ACCIDENTDATE, format = "%Y")
+df_s <- as.data.frame(table(s))
+
+# code to make a graph
+ggplot(df_s, aes(x = s, y = Freq)) +
+  geom_line(group = 1 ) +
+  labs(x = "Year", y = "Count", title = "Number of Serious Injury Crashes 2009 to 2020")
+```
+
+
+
+```{r echo=FALSE, message=FALSE, warning = FALSE, fig.width=10, fig.height=6}
+# Number of Minor Injury Crashes by Year
+m <- format(minor_injury$ACCIDENTDATE, format = "%Y")
+df_m <- as.data.frame(table(m))
+
+# code to make the graph
+ggplot(df_m, aes(x = m, y = Freq)) +
+  geom_line(group = 1 ) +
+  labs(x = "Year", y = "Count", title = "Number of Minor Injury Crashes 2009 to 2020")
+```
+
+### Number of Crashes Per Year by Severity
+```{r echo=FALSE}
+yeartable <- cbind(df_t, df_s, df_m)
+yeartable <- yeartable[ -c(3,5) ]
+colnames(yeartable) = c("Year", "Fatal", "Serious Injury", "Minor Injury")
+kable(yeartable, align = "c", "simple")
+```
+
+### Number of Crashes by Day of the Week
+```{r echo=FALSE}
+fatal <-table(fatal_crashes$DAY_OF_WEEK)
+serious <- table(serious_injury_crashes$DAY_OF_WEEK)
+minor <- table(minor_injury$DAY_OF_WEEK)
+a <- rbind(fatal, serious, minor)
+colnames(a) = c("sunday (0)", "sunday (1)", "monday", "Tuesday", "Wednesday", "Thursday", "Friday", "saturday")
+kable(a, align = "c", "simple")
+
+```
+
+# DRIVER ANALYSIS
+
+### SEX of Drivers A:
+```{r echo=FALSE}
+# crate a frequency table with row and column lables 
+sex_table <- table(accident$SEX.A., accident$SEVERITY)
+  colnames(sex_table) = c("Fatal", "Serious Injury", "Minor Injury")
+  rownames(sex_table) = c("Female", "Male", "unkown")
+  
+# create a prop table for the column percentages 
+prop_sex_table <- round(prop.table(sex_table, 2)*100,2)
+
+# combine the two tables 
+combine_sex_table <- cbind(sex_table, prop_sex_table)
+
+# add the column names for the proportions 
+colnames(combine_sex_table) = c("Fatal", "Serious Injury", "Minor Injury", "Percentage Fatal", "Percentage Serious Injury", "Percentage Minor Injury")
+
+# reorder the colums so that percentage comes after the frequency
+combine_sex_table <- combine_sex_table[, c(1,4,2,5,3,6)]
+kable(combine_sex_table, align = "c", "simple")
+```
+
+### SEX of Drivers B:
+```{r echo=FALSE}
+# crate a frequency table with row and column lables 
+sex_table <- table(accident$SEX.B., accident$SEVERITY)
+  colnames(sex_table) = c("Fatal", "Serious Injury", "Minor Injury")
+  rownames(sex_table) = c("Female", "Male", "unkown")
+  
+# create a prop table for the column percentages 
+prop_sex_table <- round(prop.table(sex_table, 2)*100,2)
+
+# combine the two tables 
+combine_sex_table <- cbind(sex_table, prop_sex_table)
+
+# add the column names for the proportions 
+colnames(combine_sex_table) = c("Fatal", "Serious Injury", "Minor Injury", "Percentage Fatal", "Percentage Serious Injury", "Percentage Minor Injury")
+
+# reorder the colums so that percentage comes after the frequency
+combine_sex_table <- combine_sex_table[, c(1,4,2,5,3,6)]
+kable(combine_sex_table, align = "c", "simple")
+```
+
+### Number of Drivers by Road User Type (driver A)
+```{r echo=FALSE}
+# crate a frequency table with row and column lables 
+user_table <- table(accident$ROAD_USER_TYPE.A, accident$SEVERITY)
+  colnames(user_table) = c("Fatal", "Serious Injury", "Minor Injury")
+  rownames(user_table) = c("Driver of motor vehicle", "Bicyclist", "Other driver (Horse, Tram, Train)", "Not Known")
+  
+# create a prop table for the column percentages 
+prop_user_table <- round(prop.table(user_table, 2)*100,2)
+
+# combine the two tables 
+combine_user_table <- cbind(user_table, prop_user_table)
+
+# add the column names for the proportions 
+colnames(combine_user_table) = c("Fatal", "Serious Injury", "Minor Injury", "Percentage Fatal", "Percentage Serious Injury", "Percentage Minor Injury")
+
+# reorder the colums so that percentage comes after the frequency
+combine_user_table <- combine_user_table[, c(1,4,2,5,3,6)]
+kable(combine_user_table, align = "c", "simple")
+
+```
+
+### Number of Drivers by Road User Type (driver B)
+```{r echo=FALSE}
+# crate a frequency table with row and column lables 
+user_table <- table(accident$ROAD_USER_TYPE.B., accident$SEVERITY)
+  colnames(user_table) = c("Fatal", "Serious Injury", "Minor Injury")
+  rownames(user_table) = c("Driver of motor vehicle", "Bicyclist", "Other driver (Horse, Tram, Train)", "Not Known")
+  
+# create a prop table for the column percentages 
+prop_user_table <- round(prop.table(user_table, 2)*100,2)
+
+# combine the two tables 
+combine_user_table <- cbind(user_table, prop_user_table)
+
+# add the column names for the proportions 
+colnames(combine_user_table) = c("Fatal", "Serious Injury", "Minor Injury", "Percentage Fatal", "Percentage Serious Injury", "Percentage Minor Injury")
+
+# reorder the colums so that percentage comes after the frequency
+combine_user_table <- combine_user_table[, c(1,4,2,5,3,6)]
+kable(combine_user_table, align = "c", "simple")
+
+```
+
+# VEHICLE ANALYSIS
+
+### Vehicle Types Involved in Crashes (vehicel A)
+```{r echo=FALSE}
+# crate a frequency table with row and column lables 
+vtype_table <- table(accident$VEHICLE_TYPE.A, accident$SEVERITY)
+  colnames(vtype_table) = c("Fatal", "Serious Injury", "Minor Injury")
+  rownames(vtype_table) = c("Car", "Station Wagon", "Taxi", "Utility", "Panel van", "Prime Mover (No of Trailers Unknown)", "Rigid truck (weight unknown)", "Bus/Coach", "Mini Bus (9-13 seats)", "Bicycle", "Horse (ridden or drawn)", "Tram", "Train", "Other Vehicle", "Not Applicable", "Parked trailers", "Plant machinery and Agricultural equipment", "Prime Mover Only", "Prime Mover - Single Trailer", "Prime Mover B-Double", "Prime Mover B-Triple", "Light Commercial Vehicle (Rigid) <= 4.5 Tonnes GVM", "Heavy Vehicle (Rigid) > 4.5 Tonnes", "Unknown")
+  
+# create a prop table for the column percentages 
+prop_vtype_table <- round(prop.table(vtype_table, 2)*100,2)
+
+# combine the two tables 
+combine_vtype_table <- cbind(vtype_table, prop_vtype_table)
+
+# add the column names for the proportions 
+colnames(combine_vtype_table) = c("Fatal", "Serious Injury", "Minor Injury", "Percentage Fatal", "Percentage Serious Injury", "Percentage Minor Injury")
+
+# reorder the colums so that percentage comes after the frequency
+combine_vtype_table <- combine_vtype_table[, c(1,4,2,5,3,6)]
+kable(combine_vtype_table, align = "c", "simple")
+
+```
+
+### Vehicle Types Involved in Crashes (vehicel B)
+```{r echo=FALSE}
+# crate a frequency table with row and column lables 
+vtype_table <- table(accident$VEHICLE_TYPE.B, accident$SEVERITY)
+  colnames(vtype_table) = c("Fatal", "Serious Injury", "Minor Injury")
+  rownames(vtype_table) = c("Car", "Station Wagon", "Taxi", "Utility", "Panel van", "Prime Mover (No of Trailers Unknown)", "Rigid truck (weight unknown)", "Bus/Coach", "Mini Bus (9-13 seats)", "Bicycle", "Horse (ridden or drawn)", "Tram", "Train", "Other Vehicle", "Not Applicable", "Parked trailers", "Plant machinery and Agricultural equipment", "Prime Mover Only", "Prime Mover - Single Trailer", "Prime Mover B-Double", "Prime Mover B-Triple", "Light Commercial Vehicle (Rigid) <= 4.5 Tonnes GVM", "Heavy Vehicle (Rigid) > 4.5 Tonnes", "Unknown")
+  
+# create a prop table for the column percentages 
+prop_vtype_table <- round(prop.table(vtype_table, 2)*100,2)
+
+# combine the two tables 
+combine_vtype_table <- cbind(vtype_table, prop_vtype_table)
+
+# add the column names for the proportions 
+colnames(combine_vtype_table) = c("Fatal", "Serious Injury", "Minor Injury", "Percentage Fatal", "Percentage Serious Injury", "Percentage Minor Injury")
+
+# reorder the colums so that percentage comes after the frequency
+combine_vtype_table <- combine_vtype_table[, c(1,4,2,5,3,6)]
+kable(combine_vtype_table, align = "c", "simple")
+
+```
+
+### Vehicle Types Involved in Crashes (vehicel A, recoded)
+```{r echo=FALSE}
+# crate a frequency table with row and column lables 
+vtype_table <- table(accident$VEHICLE_TYPE.A_RECODED, accident$SEVERITY)
+  colnames(vtype_table) = c("Fatal", "Serious Injury", "Minor Injury")
+  
+# create a prop table for the column percentages 
+prop_vtype_table <- round(prop.table(vtype_table, 2)*100,2)
+
+# combine the two tables 
+combine_vtype_table <- cbind(vtype_table, prop_vtype_table)
+
+# add the column names for the proportions 
+colnames(combine_vtype_table) = c("Fatal", "Serious Injury", "Minor Injury", "Percentage Fatal", "Percentage Serious Injury", "Percentage Minor Injury")
+
+# reorder the colums so that percentage comes after the frequency
+combine_vtype_table <- combine_vtype_table[, c(1,4,2,5,3,6)]
+kable(combine_vtype_table, align = "c", "simple")
+
+```
+
+### Vehicle Types Involved in Crashes (vehicel B, recoded)
+```{r echo=FALSE}
+# crate a frequency table with row and column lables 
+vtype_table <- table(accident$VEHICLE_TYPE.B_RECODED, accident$SEVERITY)
+  colnames(vtype_table) = c("Fatal", "Serious Injury", "Minor Injury")
+  
+# create a prop table for the column percentages 
+prop_vtype_table <- round(prop.table(vtype_table, 2)*100,2)
+
+# combine the two tables 
+combine_vtype_table <- cbind(vtype_table, prop_vtype_table)
+
+# add the column names for the proportions 
+colnames(combine_vtype_table) = c("Fatal", "Serious Injury", "Minor Injury", "Percentage Fatal", "Percentage Serious Injury", "Percentage Minor Injury")
+
+# reorder the colums so that percentage comes after the frequency
+combine_vtype_table <- combine_vtype_table[, c(1,4,2,5,3,6)]
+kable(combine_vtype_table, align = "c", "simple")
+
+```
+
+### Number of Vehicles by Driver Intent (vehicle A)
+```{r echo=FALSE}
+# crate a frequency table with row and column lables 
+intent_table <- table(accident$DRIVER_INTENT.A, accident$SEVERITY)
+  colnames(intent_table) = c("Fatal", "Serious Injury", "Minor Injury")
+  rownames(intent_table) = c("Straight ahead", "Right turn", "Left turn", "Leaving a driveway", "U turn", "Chang lanes", "overtaking", "merging", "reversing", "Parking/unparking", "Parked legally", "Park illegally", "Stationary accident", "Stationary broken down", "Other stationary", "Avoiding animals", "Slow/stopping", "Out of control", "Wrong way ", "Not known" )
+
+# create a prop table for the column percentages 
+prop_intent_table <- round(prop.table(intent_table, 2)*100,2)
+
+# combine the two tables 
+combine_intent_table <- cbind(intent_table, prop_intent_table)
+
+# add the column names for the proportions 
+colnames(combine_intent_table) = c("Fatal", "Serious Injury", "Minor Injury", "Percentage Fatal", "Percentage Serious Injury", "Percentage Minor Injury")
+
+# reorder the colums so that percentage comes after the frequency
+combine_intent_table <- combine_intent_table[, c(1,4,2,5,3,6)]
+kable(combine_intent_table, align = "c", "simple")
+
+```
+
+
+### Number of Vehicles by Vehicle Colour (vehicle A)
+```{r echo=FALSE}
+# crate a frequency table with row and column lables 
+colour_table <- table(accident$VEHICLE_COLOUR_1.A, accident$SEVERITY)
+  colnames(colour_table) = c("Fatal", "Serious Injury", "Minor Injury")
+  rownames(colour_table) = c("BLK", "BLU", "BRN", "CRM", "FWN", "GLD", "GRN", "GRY", "MRN", "MVE", "OGE", "PNK", "PUR", "RED", "SIL", "WHI", "YLW", "ZZ")
+
+# create a prop table for the column percentages 
+prop_colour_table <- round(prop.table(colour_table, 2)*100,2)
+
+# combine the two tables 
+combine_colour_table <- cbind(colour_table, prop_colour_table)
+
+# add the column names for the proportions 
+colnames(combine_colour_table) = c("Fatal", "Serious Injury", "Minor Injury", "Percentage Fatal", "Percentage Serious Injury", "Percentage Minor Injury")
+
+# reorder the colums so that percentage comes after the frequency
+combine_colour_table <- combine_colour_table[, c(1,4,2,5,3,6)]
+kable(combine_colour_table, align = "c", "simple")
+```
+
+### Number of Vehicles by Vehicle Colour (vehicle B)
+```{r echo=FALSE}
+# crate a frequency table with row and column lables 
+colour_table <- table(accident$VEHICLE_COLOUR_1.B, accident$SEVERITY)
+  colnames(colour_table) = c("Fatal", "Serious Injury", "Minor Injury")
+  rownames(colour_table) = c("BLK", "BLU", "BRN", "CRM", "FWN", "GLD", "GRN", "GRY", "MRN", "MVE", "OGE", "PNK", "PUR", "RED", "SIL", "WHI", "YLW", "ZZ")
+
+# create a prop table for the column percentages 
+prop_colour_table <- round(prop.table(colour_table, 2)*100,2)
+
+# combine the two tables 
+combine_colour_table <- cbind(colour_table, prop_colour_table)
+
+# add the column names for the proportions 
+colnames(combine_colour_table) = c("Fatal", "Serious Injury", "Minor Injury", "Percentage Fatal", "Percentage Serious Injury", "Percentage Minor Injury")
+
+# reorder the colums so that percentage comes after the frequency
+combine_colour_table <- combine_colour_table[, c(1,4,2,5,3,6)]
+kable(combine_colour_table, align = "c", "simple")
+```
+
+### Number of Vehicles by Vehicle Movement (vehicle A)
+```{r echo=FALSE}
+# crate a frequency table with row and column lables 
+movement_table <- table(accident$VEHICLE_MOVEMENT.A, accident$SEVERITY)
+  colnames(movement_table) = c("Fatal", "Serious Injury", "Minor Injury")
+  rownames(movement_table) = c("Straight ahead", "Right turn", "Left turn", "Leaving a driveway", "U turn", "Chang lanes", "overtaking", "merging", "reversing", "Parking/unparking", "Parked legally", "Park illegally", "Stationary accident", "Stationary broken down", "Other stationary", "Avoiding animals", "Slow/stopping", "Out of control", "Wrong way ", "Not known" )
+
+# create a prop table for the column percentages 
+prop_movement_table <- round(prop.table(movement_table, 2)*100,2)
+
+# combine the two tables 
+combine_movement_table <- cbind(movement_table, prop_movement_table)
+
+# add the column names for the proportions 
+colnames(combine_movement_table) = c("Fatal", "Serious Injury", "Minor Injury", "Percentage Fatal", "Percentage Serious Injury", "Percentage Minor Injury")
+
+# reorder the colums so that percentage comes after the frequency
+combine_movement_table <- combine_movement_table[, c(1,4,2,5,3,6)]
+kable(combine_movement_table, align = "c", "simple")
+
+```
+
+### Number of Vehicles by Vehicle Movement (vehicle B)
+```{r echo=FALSE}
+# crate a frequency table with row and column lables 
+movement_table <- table(accident$VEHICLE_MOVEMENT.B, accident$SEVERITY)
+  colnames(movement_table) = c("Fatal", "Serious Injury", "Minor Injury")
+  rownames(movement_table) = c("Straight ahead", "Right turn", "Left turn", "Leaving a driveway", "U turn", "Chang lanes", "overtaking", "merging", "reversing", "Parking/unparking", "Parked legally", "Park illegally", "Stationary accident", "Stationary broken down", "Other stationary", "Avoiding animals", "Slow/stopping", "Out of control", "Wrong way ", "Not known" )
+
+# create a prop table for the column percentages 
+prop_movement_table <- round(prop.table(movement_table, 2)*100,2)
+
+# combine the two tables 
+combine_movement_table <- cbind(movement_table, prop_movement_table)
+
+# add the column names for the proportions 
+colnames(combine_movement_table) = c("Fatal", "Serious Injury", "Minor Injury", "Percentage Fatal", "Percentage Serious Injury", "Percentage Minor Injury")
+
+# reorder the colums so that percentage comes after the frequency
+combine_movement_table <- combine_movement_table[, c(1,4,2,5,3,6)]
+kable(combine_movement_table, align = "c", "simple")
+
+```
+
+### Number of Vehicles Involved in a Crash by Traffic Control (vehicle A)
+```{r echo=FALSE}
+# crate a frequency table with row and column lables 
+control_table <- table(accident$TRAFFIC_CONTROL.A, accident$SEVERITY)
+  colnames(control_table) = c("Fatal", "Serious Injury", "Minor Injury")
+  rownames(control_table) = c("No control", "Stop-go lights" , "Flashing Lights", "Out of Order", "Ped lights", "Ped crossing", "RX Gates/booms", "RX Bells/lights", "RX no control", "Roundabout", "Stop Sign", "Giveway sign", "School Flags", "School no flags", "Police", "Other", "Unknown")
+
+# create a prop table for the column percentages 
+prop_control_table <- round(prop.table(control_table, 2)*100,2)
+
+# combine the two tables 
+combine_control_table <- cbind(control_table, prop_control_table)
+
+# add the column names for the proportions 
+colnames(combine_control_table) = c("Fatal", "Serious Injury", "Minor Injury", "Percentage Fatal", "Percentage Serious Injury", "Percentage Minor Injury")
+
+# reorder the colums so that percentage comes after the frequency
+combine_control_table <- combine_control_table[, c(1,4,2,5,3,6)]
+kable(combine_control_table, align = "c", "simple")
+```
+
+### Number of Vehicles Involved in a Crash by Traffic Control (vehicle B)
+```{r echo=FALSE}
+# crate a frequency table with row and column lables 
+control_table <- table(accident$TRAFFIC_CONTROL.B, accident$SEVERITY)
+  colnames(control_table) = c("Fatal", "Serious Injury", "Minor Injury")
+  rownames(control_table) = c("No control", "Stop-go lights" , "Flashing Lights", "Out of Order", "Ped lights", "Ped crossing", "RX Gates/booms", "RX Bells/lights", "RX no control", "Roundabout", "Stop Sign", "Giveway sign", "School Flags", "School no flags", "Police", "Other", "Unknown")
+
+# create a prop table for the column percentages 
+prop_control_table <- round(prop.table(control_table, 2)*100,2)
+
+# combine the two tables 
+combine_control_table <- cbind(control_table, prop_control_table)
+
+# add the column names for the proportions 
+colnames(combine_control_table) = c("Fatal", "Serious Injury", "Minor Injury", "Percentage Fatal", "Percentage Serious Injury", "Percentage Minor Injury")
+
+# reorder the colums so that percentage comes after the frequency
+combine_control_table <- combine_control_table[, c(1,4,2,5,3,6)]
+kable(combine_control_table, align = "c", "simple")
+```
+
+# ANALISIS FOR ATMOSPHERIC AND ROAD CONDITION
+
+### Number of Crashes by Light Condition
+```{r echo=FALSE}
+# crate a frequency table with row and column lables 
+light_table <- table(accident$LIGHT_CONDITION, accident$SEVERITY)
+  colnames(light_table) = c("Fatal", "Serious Injury", "Minor Injury")
+  rownames(light_table) = c("Day", "dusk/dawn" , "dark street lights on", "dark street lights off", "dark no street lights", "dark street lights unknown", "unknown")
+
+# create a prop table for the column percentages 
+prop_light_table <- round(prop.table(light_table, 2)*100,2)
+
+# combine the two tables 
+combine_light_table <- cbind(light_table, prop_light_table )
+
+# add the column names for the proportions 
+colnames(combine_light_table) = c("Fatal", "Serious Injury", "Minor Injury", "Percentage Fatal", "Percentage Serious Injury", "Percentage Minor Injury")
+
+# reorder the colums so that percentage comes after the frequency
+combine_light_table <- combine_light_table[, c(1,4,2,5,3,6)]
+kable(combine_light_table, align = "c", "simple")
+```
+
+### Number of Crashes when surface dry (yes)
+```{r echo=FALSE}
+# crate a frequency table with row and column lables 
+surface_table <- table(accident$SURFACE_DRY, accident$SEVERITY)
+  colnames(surface_table) = c("Fatal", "Serious Injury", "Minor Injury")
+
+
+# create a prop table for the column percentages 
+prop_surface_table <- round(prop.table(surface_table, 2)*100,2)
+
+# combine the two tables 
+combine_surface_table <- cbind(surface_table, prop_surface_table)
+
+# add the column names for the proportions 
+colnames(combine_surface_table) = c("Fatal", "Serious Injury", "Minor Injury", "Percentage Fatal", "Percentage Serious Injury", "Percentage Minor Injury")
+
+# reorder the colums so that percentage comes after the frequency
+combine_surface_table <- combine_surface_table[, c(1,4,2,5,3,6)]
+kable(combine_surface_table, align = "c", "simple")
+```
+
+### Number of Crashes when surface wet (yes)
+```{r echo=FALSE}
+# crate a frequency table with row and column lables 
+surface_table <- table(accident$SURFACE_WET, accident$SEVERITY)
+  colnames(surface_table) = c("Fatal", "Serious Injury", "Minor Injury")
+
+
+# create a prop table for the column percentages 
+prop_surface_table <- round(prop.table(surface_table, 2)*100,2)
+
+# combine the two tables 
+combine_surface_table <- cbind(surface_table, prop_surface_table)
+
+# add the column names for the proportions 
+colnames(combine_surface_table) = c("Fatal", "Serious Injury", "Minor Injury", "Percentage Fatal", "Percentage Serious Injury", "Percentage Minor Injury")
+
+# reorder the colums so that percentage comes after the frequency
+combine_surface_table <- combine_surface_table[, c(1,4,2,5,3,6)]
+kable(combine_surface_table, align = "c", "simple")
+```
+
+### Number of Crashes when surface muddy (yes)
+```{r echo=FALSE}
+# crate a frequency table with row and column lables 
+surface_table <- table(accident$SURFACE_MUDDY, accident$SEVERITY)
+  colnames(surface_table) = c("Fatal", "Serious Injury", "Minor Injury")
+
+
+# create a prop table for the column percentages 
+prop_surface_table <- round(prop.table(surface_table, 2)*100,2)
+
+# combine the two tables 
+combine_surface_table <- cbind(surface_table, prop_surface_table)
+
+# add the column names for the proportions 
+colnames(combine_surface_table) = c("Fatal", "Serious Injury", "Minor Injury", "Percentage Fatal", "Percentage Serious Injury", "Percentage Minor Injury")
+
+# reorder the colums so that percentage comes after the frequency
+combine_surface_table <- combine_surface_table[, c(1,4,2,5,3,6)]
+kable(combine_surface_table, align = "c", "simple")
+```
+
+### Number of Crashes when surface snowy (yes)
+```{r echo=FALSE}
+# crate a frequency table with row and column lables 
+surface_table <- table(accident$SURFACE_SNOWY, accident$SEVERITY)
+  colnames(surface_table) = c("Fatal", "Serious Injury", "Minor Injury")
+
+
+# create a prop table for the column percentages 
+prop_surface_table <- round(prop.table(surface_table, 2)*100,2)
+
+# combine the two tables 
+combine_surface_table <- cbind(surface_table, prop_surface_table)
+
+# add the column names for the proportions 
+colnames(combine_surface_table) = c("Fatal", "Serious Injury", "Minor Injury", "Percentage Fatal", "Percentage Serious Injury", "Percentage Minor Injury")
+
+# reorder the colums so that percentage comes after the frequency
+combine_surface_table <- combine_surface_table[, c(1,4,2,5,3,6)]
+kable(combine_surface_table, align = "c", "simple")
+```
+
+### Number of Crashes when surface icy (yes)
+```{r echo=FALSE}
+# crate a frequency table with row and column lables 
+surface_table <- table(accident$SURFACE_ICY, accident$SEVERITY)
+  colnames(surface_table) = c("Fatal", "Serious Injury", "Minor Injury")
+
+
+# create a prop table for the column percentages 
+prop_surface_table <- round(prop.table(surface_table, 2)*100,2)
+
+# combine the two tables 
+combine_surface_table <- cbind(surface_table, prop_surface_table)
+
+# add the column names for the proportions 
+colnames(combine_surface_table) = c("Fatal", "Serious Injury", "Minor Injury", "Percentage Fatal", "Percentage Serious Injury", "Percentage Minor Injury")
+
+# reorder the colums so that percentage comes after the frequency
+combine_surface_table <- combine_surface_table[, c(1,4,2,5,3,6)]
+kable(combine_surface_table, align = "c", "simple")
+```
+
+### Number of Crashes when atmospheric clear (yes)
+```{r echo=FALSE}
+# crate a frequency table with row and column lables 
+surface_table <- table(accident$ATMOSPHERIC_CLEAR, accident$SEVERITY)
+  colnames(surface_table) = c("Fatal", "Serious Injury", "Minor Injury")
+
+
+# create a prop table for the column percentages 
+prop_surface_table <- round(prop.table(surface_table, 2)*100,2)
+
+# combine the two tables 
+combine_surface_table <- cbind(surface_table, prop_surface_table)
+
+# add the column names for the proportions 
+colnames(combine_surface_table) = c("Fatal", "Serious Injury", "Minor Injury", "Percentage Fatal", "Percentage Serious Injury", "Percentage Minor Injury")
+
+# reorder the colums so that percentage comes after the frequency
+combine_surface_table <- combine_surface_table[, c(1,4,2,5,3,6)]
+kable(combine_surface_table, align = "c", "simple")
+```
+
+### Number of Crashes when atmospheric raining (yes)
+```{r echo=FALSE}
+# crate a frequency table with row and column lables 
+surface_table <- table(accident$ATMOSPHERIC_RAINING, accident$SEVERITY)
+  colnames(surface_table) = c("Fatal", "Serious Injury", "Minor Injury")
+
+
+# create a prop table for the column percentages 
+prop_surface_table <- round(prop.table(surface_table, 2)*100,2)
+
+# combine the two tables 
+combine_surface_table <- cbind(surface_table, prop_surface_table)
+
+# add the column names for the proportions 
+colnames(combine_surface_table) = c("Fatal", "Serious Injury", "Minor Injury", "Percentage Fatal", "Percentage Serious Injury", "Percentage Minor Injury")
+
+# reorder the colums so that percentage comes after the frequency
+combine_surface_table <- combine_surface_table[, c(1,4,2,5,3,6)]
+kable(combine_surface_table, align = "c", "simple")
+```
+
+### Number of Crashes when atmospheric snowing (yes)
+```{r echo=FALSE}
+# crate a frequency table with row and column lables 
+surface_table <- table(accident$ATMOSPHERIC_SNOWING, accident$SEVERITY)
+  colnames(surface_table) = c("Fatal", "Serious Injury", "Minor Injury")
+
+
+# create a prop table for the column percentages 
+prop_surface_table <- round(prop.table(surface_table, 2)*100,2)
+
+# combine the two tables 
+combine_surface_table <- cbind(surface_table, prop_surface_table)
+
+# add the column names for the proportions 
+colnames(combine_surface_table) = c("Fatal", "Serious Injury", "Minor Injury", "Percentage Fatal", "Percentage Serious Injury", "Percentage Minor Injury")
+
+# reorder the colums so that percentage comes after the frequency
+combine_surface_table <- combine_surface_table[, c(1,4,2,5,3,6)]
+kable(combine_surface_table, align = "c", "simple")
+```
+
+### Number of Crashes when atmospheric fog (yes)
+```{r echo=FALSE}
+# crate a frequency table with row and column lables 
+surface_table <- table(accident$ATMOSPHERIC_FOG, accident$SEVERITY)
+  colnames(surface_table) = c("Fatal", "Serious Injury", "Minor Injury")
+
+
+# create a prop table for the column percentages 
+prop_surface_table <- round(prop.table(surface_table, 2)*100,2)
+
+# combine the two tables 
+combine_surface_table <- cbind(surface_table, prop_surface_table)
+
+# add the column names for the proportions 
+colnames(combine_surface_table) = c("Fatal", "Serious Injury", "Minor Injury", "Percentage Fatal", "Percentage Serious Injury", "Percentage Minor Injury")
+
+# reorder the colums so that percentage comes after the frequency
+combine_surface_table <- combine_surface_table[, c(1,4,2,5,3,6)]
+kable(combine_surface_table, align = "c", "simple")
+```
+
+### Number of Crashes when atmospheric smoke (yes)
+```{r echo=FALSE}
+# crate a frequency table with row and column lables 
+surface_table <- table(accident$ATMOSPHERIC_SMOKE, accident$SEVERITY)
+  colnames(surface_table) = c("Fatal", "Serious Injury", "Minor Injury")
+
+
+# create a prop table for the column percentages 
+prop_surface_table <- round(prop.table(surface_table, 2)*100,2)
+
+# combine the two tables 
+combine_surface_table <- cbind(surface_table, prop_surface_table)
+
+# add the column names for the proportions 
+colnames(combine_surface_table) = c("Fatal", "Serious Injury", "Minor Injury", "Percentage Fatal", "Percentage Serious Injury", "Percentage Minor Injury")
+
+# reorder the colums so that percentage comes after the frequency
+combine_surface_table <- combine_surface_table[, c(1,4,2,5,3,6)]
+kable(combine_surface_table, align = "c", "simple")
+```
+
+### Number of Crashes when atmospheric dust (yes)
+```{r echo=FALSE}
+# crate a frequency table with row and column lables 
+surface_table <- table(accident$ATMOSPHERIC_DUST, accident$SEVERITY)
+  colnames(surface_table) = c("Fatal", "Serious Injury", "Minor Injury")
+
+
+# create a prop table for the column percentages 
+prop_surface_table <- round(prop.table(surface_table, 2)*100,2)
+
+# combine the two tables 
+combine_surface_table <- cbind(surface_table, prop_surface_table)
+
+# add the column names for the proportions 
+colnames(combine_surface_table) = c("Fatal", "Serious Injury", "Minor Injury", "Percentage Fatal", "Percentage Serious Injury", "Percentage Minor Injury")
+
+# reorder the colums so that percentage comes after the frequency
+combine_surface_table <- combine_surface_table[, c(1,4,2,5,3,6)]
+kable(combine_surface_table, align = "c", "simple")
+```
+
+### Number of Crashes when atmospheric strong wind (yes)
+```{r echo=FALSE}
+# crate a frequency table with row and column lables 
+surface_table <- table(accident$ATMOSPHERIC_STRONG.WIND, accident$SEVERITY)
+  colnames(surface_table) = c("Fatal", "Serious Injury", "Minor Injury")
+
+
+# create a prop table for the column percentages 
+prop_surface_table <- round(prop.table(surface_table, 2)*100,2)
+
+# combine the two tables 
+combine_surface_table <- cbind(surface_table, prop_surface_table)
+
+# add the column names for the proportions 
+colnames(combine_surface_table) = c("Fatal", "Serious Injury", "Minor Injury", "Percentage Fatal", "Percentage Serious Injury", "Percentage Minor Injury")
+
+# reorder the colums so that percentage comes after the frequency
+combine_surface_table <- combine_surface_table[, c(1,4,2,5,3,6)]
+kable(combine_surface_table, align = "c", "simple")
+```
+
+### Number of Vehicle Involved in Crashes by Road Surface Type (vehicle A)
+```{r echo=FALSE}
+
+# crate a frequency table with row and column lables 
+roadtype_table <- table(accident$ROAD_SURFACE_TYPE.A, accident$SEVERITY)
+  colnames(roadtype_table) = c("Fatal", "Serious Injury", "Minor Injury")
+  rownames(roadtype_table) = c("Paved", "unpaved" , "Gravel", "Unknown")
+
+# create a prop table for the column percentages 
+prop_roadtype_table <- round(prop.table(roadtype_table, 2)*100,2)
+
+# combine the two tables 
+combine_roadtype_table <- cbind(roadtype_table, prop_roadtype_table)
+
+# add the column names for the proportions 
+colnames(combine_roadtype_table) = c("Fatal", "Serious Injury", "Minor Injury", "Percentage Fatal", "Percentage Serious Injury", "Percentage Minor Injury")
+
+# reorder the colums so that percentage comes after the frequency
+combine_roadtype_table <- combine_roadtype_table[, c(1,4,2,5,3,6)]
+kable(combine_roadtype_table, align = "c", "simple")
+```
+
+### Number of Vehicle Involved in Crashes by Road Surface Type (vehicle B)
+```{r echo=FALSE}
+
+# crate a frequency table with row and column lables 
+roadtype_table <- table(accident$ROAD_SURFACE_TYPE.B, accident$SEVERITY)
+  colnames(roadtype_table) = c("Fatal", "Serious Injury", "Minor Injury")
+  rownames(roadtype_table) = c("Paved", "unpaved" , "Gravel", "Unknown")
+
+# create a prop table for the column percentages 
+prop_roadtype_table <- round(prop.table(roadtype_table, 2)*100,2)
+
+# combine the two tables 
+combine_roadtype_table <- cbind(roadtype_table, prop_roadtype_table)
+
+# add the column names for the proportions 
+colnames(combine_roadtype_table) = c("Fatal", "Serious Injury", "Minor Injury", "Percentage Fatal", "Percentage Serious Injury", "Percentage Minor Injury")
+
+# reorder the colums so that percentage comes after the frequency
+combine_roadtype_table <- combine_roadtype_table[, c(1,4,2,5,3,6)]
+kable(combine_roadtype_table, align = "c", "simple")
+```
+
